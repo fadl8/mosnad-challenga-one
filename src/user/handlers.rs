@@ -80,6 +80,17 @@ async fn login<'a>(
     }
 }
 
+#[get("/")]
+async fn get_all_user(mut db: Connection<Db>) -> Result<Json<Vec<User>>> { 
+    
+    let userList = users::table
+        .select(users::all_columns) 
+        .load(&mut db)
+        .await?;
+    
+    Ok(Json(userList))
+}
+
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("users endpoint", |rocket| async {
         rocket

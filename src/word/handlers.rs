@@ -62,7 +62,18 @@ async fn get_all_rows_by_userId(mut db: Connection<Db>) -> Result<Json<Vec<Word>
         .await?;
     Ok(Json(words))
 }
-  
+
+#[get("/admin")]
+async fn get_all_rows_for_admin(mut db: Connection<Db>) -> Result<Json<Vec<Word>>> { 
+    
+    let words = words::table
+        .select(words::all_columns)
+        .filter(words::approved.eq(false))
+        .load(&mut db)
+        .await?;
+    Ok(Json(words))
+}
+
 #[delete("/<id>")]
 async fn delete_word(mut db: Connection<Db>, id: i32) -> Result<Json<String>, Status> {
     // Combine finding and deleting in a single query
@@ -125,6 +136,7 @@ pub fn stage() -> AdHoc {
             get_sorted, 
             get_by_id,
             get_all_rows_by_userId,
+            get_all_rows_for_admin,
             delete_word],
         )
     })
