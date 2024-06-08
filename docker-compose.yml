@@ -1,0 +1,30 @@
+version: "2"
+services:
+    db:
+        image: postgres:latest
+        ports: 
+            - "9000:5432"
+        environment:
+            POSTGRAS_DATABASE: urbandic
+            POSTGRAS_USER: user
+            POSTGRAS_PASSWORD: test
+            POSTGRAS_ROOT_PASSWORD: test 
+        volumes:
+            - persistent_1:/var/lib/postgras
+        networks:
+            - default
+    www:
+        build: .
+        ports: 
+            - "9000:5432"
+        links:
+            - db1
+        networks:
+            - default
+        depends_on:
+            - db
+        command: bash -c "postgres://postgres:postgres@localhost:9000/urbandic && diesel migration run &&  cargo run"
+        volumes:
+            - ./:/usr/src/myapp
+volumes:
+    persistent_1:
