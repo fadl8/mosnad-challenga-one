@@ -1,0 +1,2 @@
+[default.databases.diesel_postgres]
+url = "postgres://postgres:postgres@localhost:9000/urbandic"

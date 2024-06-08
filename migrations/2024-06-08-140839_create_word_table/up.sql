@@ -1,0 +1,9 @@
+ 
+CREATE TABLE words (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR NOT NULL,
+  description VARCHAR NOT NULL,
+  character VARCHAR NOT NULL,
+  approved BOOLEAN NOT NULL DEFAULT FALSE
+);
+ 
