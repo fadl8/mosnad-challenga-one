@@ -16,6 +16,7 @@ diesel::table! {
         description -> Varchar,
         character -> Varchar,
         approved -> Bool,
+        user_id -> Nullable<Int4>,
     }
 }
 

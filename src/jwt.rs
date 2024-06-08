@@ -11,6 +11,7 @@ pub struct Claims {
     pub is_admin: bool,
     exp: usize,
 }
+ 
 
 impl Claims {
     pub fn new(id: i32, is_admin: bool) -> Self {
