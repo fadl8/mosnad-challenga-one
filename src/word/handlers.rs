@@ -131,8 +131,10 @@ async fn get_all_word_by_userId(mut db: Connection<Db>,claims:Claims) -> Result<
 
 // Ability to delete a word created by the user
 #[delete("/<word_id>")]
-async fn delete_word(mut db: Connection<Db>, word_id: i32) -> Result<Json<String>, Status> {
-    // Combine finding and deleting in a single query
+async fn delete_word(mut db: Connection<Db>,claims: Claims, word_id: i32) -> Result<Json<String>, Status> {
+    if claims.is_admin {
+        return Err(Status::Unauthorized); 
+    }
     let deleted_word = match diesel::delete(words::table.filter(words::id.eq(word_id)))
         .get_result::<Word>(&mut *db)
         .await
@@ -152,21 +154,34 @@ async fn delete_word(mut db: Connection<Db>, word_id: i32) -> Result<Json<String
 }
 
 // Getting a list of all the non approved word submitted by users
-#[get("/admin")]
-async fn get_all_rows_for_admin(mut db: Connection<Db>) -> Result<Json<Vec<Word>>> { 
+#[get("/admin?<page_index>&<limit>")]
+async fn get_all_rows_for_admin(mut db: Connection<Db>, claims: Claims,page_index: i64,limit: i64,) -> Result<Json<Vec<Word>>, Status> { 
     
+    if claims.is_admin {
+        return Err(Status::Unauthorized);
+    }
+
     let words = words::table
         .select(words::all_columns)
         .filter(words::approved.eq(false))
+        .limit(limit)
+        .offset(page_index * 10)
         .load(&mut db)
-        .await?;
+        .await
+        .unwrap();
+
     Ok(Json(words))
 }
 
 
 // Ability to approve or reject non approved words
 #[put("/update",data = "<new_word>")]
-async fn update_word(mut db: Connection<Db>, new_word: Json<NewWord>) -> Result<Json<Word>, Status> {
+async fn update_word(mut db: Connection<Db>, claims: Claims,new_word: Json<NewWord>) -> Result<Json<Word>, Status> {
+    
+    if claims.is_admin {
+        return Err(Status::Unauthorized);
+    }
+
     let  word = words::table.find(new_word.id).get_result::<Word>(&mut db).await; 
     match word {
         Ok(mut word) => {
