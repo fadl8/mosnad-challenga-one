@@ -30,27 +30,31 @@ struct NewWordView {
 }
  
 // Getting random set of words
-#[get("/")]
-async fn get_all_rows(mut db: Connection<Db>) -> Result<Json<Vec<Word>>> {
+#[get("/?<page_index>&<limit>")]
+async fn get_all_rows(mut db: Connection<Db> , page_index: i64, limit: i64) -> Result<Json<Vec<Word>>> {
     let words = words::table
         .select(words::all_columns)
+        .limit(limit)
+        .offset(10 * page_index)
         .load(&mut db)
         .await?;
     Ok(Json(words))
 }
 
 // Getting a list of all words sorted alphabetically
-#[get("/get_sorted")]
-async fn get_sorted(mut db: Connection<Db>) -> Result<Json<Vec<Word>>> {
+#[get("/get-sorted?<page_index>&<limit>")]
+async fn get_sorted(mut db: Connection<Db> , page_index: i64, limit: i64) -> Result<Json<Vec<Word>>> {
     let words = words::table
         .select(words::all_columns)
         .order_by(words::character)
+        .limit(limit)
+        .offset(page_index * 10)
         .load(&mut db)
         .await?;
     Ok(Json(words))
 }
 
-// •	Getting a list of the characters which are the first character of a word
+// Getting a list of the characters which are the first character of a word
 #[get("/get_characters_words")]
 async fn get_characters_words(mut db: Connection<Db>) -> Result<Json<Vec<String>>> {
 
@@ -63,12 +67,14 @@ async fn get_characters_words(mut db: Connection<Db>) -> Result<Json<Vec<String>
 }
 
 // Getting a list of the words by their first character
-#[get("/get_words_by_characters/<character>")]
-async fn get_words_by_characters(mut db: Connection<Db>,character: String) -> Result<Json<Vec<Word>>> {
+#[get("/get_words_by_characters/<character>?<page_index>&<limit>")]
+async fn get_words_by_characters(mut db: Connection<Db>,character: String,  page_index: i64,limit: i64,) -> Result<Json<Vec<Word>>> {
 
     let words = words::table
         .select(words::all_columns)
         .filter(words::title.like(format!("{}%", character))) 
+        .limit(limit)
+        .offset(page_index * 10)
         .load(&mut db)
         .await?;
     Ok(Json(words))
@@ -85,12 +91,14 @@ async fn get_by_id(mut db: Connection<Db>, word_id: i32) -> Result<Json<Word>, S
 }
 
 // Searching for all the available words stored in the database
-#[get("/search/<search_word>")]
-async fn search(mut db: Connection<Db>, search_word: String) -> Result<Json<Vec<Word>>> {
+#[get("/search/<search_word>?<page_index>&<limit>")]
+async fn search(mut db: Connection<Db>, search_word: String,page_index: i64,limit: i64,) -> Result<Json<Vec<Word>>> {
     let words = words::table 
         .select(words::all_columns)
         .filter(words::title.eq(search_word))
         .filter(words::approved.eq(true))
+        .limit(limit)
+        .offset(page_index * 10)
         .load(&mut db)
         .await?;
     Ok(Json(words))
