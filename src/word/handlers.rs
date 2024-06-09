@@ -157,24 +157,20 @@ async fn get_all_rows_for_admin(mut db: Connection<Db>) -> Result<Json<Vec<Word>
 
 
 // Ability to approve or reject non approved words
-
-// Ability to delete a word created by the user
-// #[put("/update",data = "<new_word>")]
-// async fn update_word(mut db: Connection<Db>, new_word: Json<NewWord>) -> Result<Json<Word>, Status> {
-//     let  word = words::table.find(new_word.id).get_result::<Word>(&mut db).await; 
-//     match word {
-//         Ok(mut word) => {
-//             word.approved = new_word.approved;
-            
-//             let word_updated = diesel::update(words::table.filter(words::id.eq(new_word.id)))
-//              .set(approved.eq(new_word.approved))
-//              .execute(&mut db) ;
+#[put("/update",data = "<new_word>")]
+async fn update_word(mut db: Connection<Db>, new_word: Json<NewWord>) -> Result<Json<Word>, Status> {
+    let  word = words::table.find(new_word.id).get_result::<Word>(&mut db).await; 
+    match word {
+        Ok(mut word) => {
+            let word_updated = diesel::update(words::table.filter(words::id.eq(new_word.id)))
+             .set(approved.eq(new_word.approved))
+             .execute(&mut db) ;
       
-//             Ok(Json(word))
-//         },
-//         Err(_) => Err(Status::NotFound),
-//     } 
-// }
+            Ok(Json(word))
+        },
+        Err(_) => Err(Status::NotFound),
+    } 
+}
 
  
  
@@ -191,7 +187,7 @@ pub fn stage() -> AdHoc {
             get_all_rows_for_admin,
             get_characters_words,
             get_words_by_characters,
-           // update_word,
+            update_word,
             delete_word],
         )
     })
