@@ -10,18 +10,19 @@ pub struct Word {
     pub description: String,
     pub character: String,
     pub approved: bool,
-    pub userId: i32, 
+    pub user_id: i32, 
 }
 
 #[derive(Insertable, Deserialize, Serialize)]
 #[serde(crate = "rocket::serde")]
 #[diesel(table_name = words)]
 pub struct NewWord {
+    pub id : i32,
     pub title: String,
     pub description: String,
     pub character: String,
     pub approved: bool,
-    pub userId: i32
+    pub user_id: i32
 }
 
 diesel::table! {
@@ -31,6 +32,6 @@ diesel::table! {
         description -> Text,
         character -> Text,
         approved -> Bool,
-        userId -> Int4
+        user_id -> Int4
      }
 }

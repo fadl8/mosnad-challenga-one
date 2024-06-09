@@ -94,6 +94,6 @@ async fn get_all_user(mut db: Connection<Db>) -> Result<Json<Vec<User>>> {
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("users endpoint", |rocket| async {
         rocket
-             .mount("/users", routes![singup, login])
+             .mount("/users", routes![singup, login,get_all_user])
     })
 }
